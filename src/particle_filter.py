@@ -119,8 +119,20 @@ class ParticleFiler():
         # these topics are to receive data from the racecar
         self.laser_sub = rospy.Subscriber(rospy.get_param("~scan_topic", "/scan"), LaserScan, self.lidarCB, queue_size=1)
         self.odom_sub  = rospy.Subscriber(rospy.get_param("~odometry_topic", "/odom"), Odometry, self.odomCB, queue_size=1)
-        self.pose_sub  = rospy.Subscriber("/initialpose", PoseWithCovarianceStamped, self.clicked_pose, queue_size=1)
-        self.click_sub = rospy.Subscriber("/clicked_point", PointStamped, self.clicked_pose, queue_size=1)
+        # self.pose_sub  = rospy.Subscriber("/initialpose", PoseWithCovarianceStamped, self.clicked_pose, queue_size=1)
+        # self.click_sub = rospy.Subscriber("/clicked_point", PointStamped, self.clicked_pose, queue_size=1)
+
+        initial_pose_x = float(rospy.get_param("~initial_pose_x", "0.0"))
+        initial_pose_y = float(rospy.get_param("~initial_pose_y", "0.0"))
+        initial_pose_a = float(rospy.get_param("~initial_pose_a", "0.0"))
+
+        initial_pose = Pose()
+        initial_pose.position.x = initial_pose_x
+        initial_pose.position.y = initial_pose_y
+
+        initial_pose.orientation = Utils.yaw_to_quaternion(initial_pose_a)
+
+        self.clicked_pose(initial_pose)
 
         print "Finished initializing, waiting on messages..."
 
@@ -179,7 +191,7 @@ class ParticleFiler():
             odom.header = Utils.make_header("/map", stamp)
             odom.pose.pose.position.x = pose[0]
             odom.pose.pose.position.y = pose[1]
-            odom.pose.pose.orientation = Utils.angle_to_quaternion(pose[2])
+            odom.pose.pose.orientation = Utils.yaw_to_quaternion(pose[2])
             self.odom_pub.publish(odom)
         
         # return # below this line is disabled
@@ -218,7 +230,7 @@ class ParticleFiler():
             ps.header = Utils.make_header("map")
             ps.pose.position.x = self.inferred_pose[0]
             ps.pose.position.y = self.inferred_pose[1]
-            ps.pose.orientation = Utils.angle_to_quaternion(self.inferred_pose[2])
+            ps.pose.orientation = Utils.yaw_to_quaternion(self.inferred_pose[2])
             self.pose_pub.publish(ps)
 
         if self.particle_pub.get_num_connections() > 0:

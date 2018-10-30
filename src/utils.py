@@ -53,8 +53,8 @@ class Timer:
     def fps(self):
         return self.arr.mean()
 
-def angle_to_quaternion(angle):
-    """Convert an angle in radians into a quaternion _message_."""
+def yaw_to_quaternion(angle):
+    """Convert an yaw in radians into a quaternion _message_."""
     return Quaternion(*tf.transformations.quaternion_from_euler(0, 0, angle))
 
 def quaternion_to_angle(q):
@@ -75,7 +75,7 @@ def particle_to_pose(particle):
     pose = Pose()
     pose.position.x = particle[0]
     pose.position.y = particle[1]
-    pose.orientation = angle_to_quaternion(particle[2])
+    pose.orientation = yaw_to_quaternion(particle[2])
     return pose
 
 def particles_to_poses(particles):
