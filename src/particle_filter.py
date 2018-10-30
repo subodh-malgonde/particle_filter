@@ -199,7 +199,7 @@ class ParticleFiler():
         map_laser_rotation = np.array( tf.transformations.quaternion_from_euler(0, 0, pose[2]) )
         # Apply laser -> base_link transform to map -> laser transform
         # This gives a map -> base_link transform
-        laser_base_link_offset = (0.265, 0, 0)
+        laser_base_link_offset = (0.06, 0, 0)
         map_laser_pos -= np.dot(tf.transformations.quaternion_matrix(tf.transformations.unit_vector(map_laser_rotation))[:3,:3], laser_base_link_offset).T
 
         # Publish transform
