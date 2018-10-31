@@ -229,7 +229,7 @@ class ParticleFiler():
         map_odom_delta = np.array((map_base_link_pos_x - self.last_pose[0], map_base_link_pos_y - self.last_pose[1], 0))
         map_odom_orientation = np.array(tf.transformations.quaternion_from_euler(0, 0, pose[2] - self.last_pose[2]))
 
-        self.pub_tf.sendTransform(map_odom_delta, map_odom_orientation, stamp, "/map", "/odom")
+        self.pub_tf.sendTransform(map_odom_delta, map_odom_orientation, stamp, "/odom", "/map")
 
 
     def visualize(self):
