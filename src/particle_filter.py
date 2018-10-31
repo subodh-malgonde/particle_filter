@@ -9,6 +9,7 @@ from threading import Lock
 import tf.transformations
 import tf
 import utils as Utils
+import math
 
 # messages
 from std_msgs.msg import String, Header, Float32MultiArray
@@ -209,6 +210,7 @@ class ParticleFiler():
         # Get map -> laser transform.
         map_laser_pos = np.array( (pose[0],pose[1],0) )
         map_laser_rotation = np.array( tf.transformations.quaternion_from_euler(0, 0, pose[2]) )
+
         # Apply laser -> base_link transform to map -> laser transform
         # This gives a map -> base_link transform
         laser_base_link_offset = (0.06, 0, 0)
@@ -301,11 +303,17 @@ class ParticleFiler():
         pose = np.array([position[0], position[1], orientation])
 
         if isinstance(self.last_pose, np.ndarray):
-            # changes in x,y,theta in local coordinate system of the car
+
             rot = Utils.rotation_matrix(-self.last_pose[2])
+
+            # changes in x,y,theta in global coordinate system
             delta = np.array([position - self.last_pose[0:2]]).transpose()
+
+            # changes in x,y in local coordinate system of the car
+            # Equivalent to rotation by -theta
             local_delta = (rot*delta).transpose()
-            
+
+            # append changes in theta in the local coordinate system of the car
             self.odometry_data = np.array([local_delta[0,0], local_delta[0,1], orientation - self.last_pose[2]])
             self.last_pose = pose
             self.last_stamp = msg.header.stamp
