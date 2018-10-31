@@ -203,21 +203,34 @@ class ParticleFiler():
         We want to publish a "map" -> "laser" transform.
 
         However, the car's position is measured with respect to the "base_link"
-        frame (it is the root of the TF tree). Thus, we should actually define
-        a "map" -> "base_link" transform as to not break the TF tree.
+        frame (it is the root of the TF tree). And "odom" to "base_link" transform is published
+        by vesc_to_odom node. Thus, we should actually define
+        a "map" -> "odom" transform as to not break the TF tree.
         """
 
         # Get map -> laser transform.
-        map_laser_pos = np.array( (pose[0],pose[1],0) )
-        map_laser_rotation = np.array( tf.transformations.quaternion_from_euler(0, 0, pose[2]) )
+        # map_laser_pos = np.array( (pose[0],pose[1],0) )
+        # map_laser_rotation = np.array( tf.transformations.quaternion_from_euler(0, 0, pose[2]) )
 
         # Apply laser -> base_link transform to map -> laser transform
         # This gives a map -> base_link transform
-        laser_base_link_offset = (0.06, 0, 0)
-        map_laser_pos -= np.dot(tf.transformations.quaternion_matrix(tf.transformations.unit_vector(map_laser_rotation))[:3,:3], laser_base_link_offset).T
+        # laser_base_link_offset = (0.06, 0, 0)
+        # map_laser_pos -= np.dot(tf.transformations.quaternion_matrix(tf.transformations.unit_vector(map_laser_rotation))[:3,:3], laser_base_link_offset).T
 
         # Publish transform
-        self.pub_tf.sendTransform(map_laser_pos, map_laser_rotation, stamp , "/base_link", "/map")
+        # self.pub_tf.sendTransform(map_laser_pos, map_laser_rotation, stamp , "/base_link", "/map")
+
+        # Assuming only translational offset, no rotation
+        base_link_laser_delta = 0.06
+        map_base_link_pos_x = pose[0] - base_link_laser_delta * math.cos(pose[2])
+        map_base_link_pos_y = pose[1] - base_link_laser_delta * math.sin(pose[2])
+
+        # This assumes the map and odom frames are initially aligned
+        map_odom_delta = np.array((map_base_link_pos_x - self.last_pose[0], map_base_link_pos_y - self.last_pose[1], 0))
+        map_odom_orientation = np.array(tf.transformations.quaternion_from_euler(0, 0, pose[2] - self.last_pose[2]))
+
+        self.pub_tf.sendTransform(map_odom_delta, map_odom_orientation, stamp, "/map", "/odom")
+
 
     def visualize(self):
         '''
