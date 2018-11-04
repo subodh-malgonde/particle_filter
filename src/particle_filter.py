@@ -226,10 +226,10 @@ class ParticleFiler():
         map_base_link_pos_y = pose[1] - base_link_laser_delta * math.sin(pose[2])
 
         # This assumes the map and odom frames are initially aligned
-        map_odom_delta = np.array((map_base_link_pos_x - self.last_pose[0], map_base_link_pos_y - self.last_pose[1], 0))
-        map_odom_orientation = np.array(tf.transformations.quaternion_from_euler(0, 0, pose[2] - self.last_pose[2]))
+        map_odom_delta = np.array((map_base_link_pos_x, map_base_link_pos_y, 0))
+        map_odom_orientation = np.array(tf.transformations.quaternion_from_euler(0, 0, pose[2]))
 
-        self.pub_tf.sendTransform(map_odom_delta, map_odom_orientation, stamp, "/odom", "/map")
+        self.pub_tf.sendTransform(map_odom_delta, map_odom_orientation, stamp, "/base_link", "/map")
 
 
     def visualize(self):
@@ -674,8 +674,8 @@ class ParticleFiler():
                 # this is for tracking particle filter speed
                 ips = 1.0 / (t2 - t1)
                 self.smoothing.append(ips)
-                if self.iters % 10 == 0:
-                    print "iters per sec:", int(self.timer.fps()), " possible:", int(self.smoothing.mean())
+                # if self.iters % 10 == 0:
+                #     print "iters per sec:", int(self.timer.fps()), " possible:", int(self.smoothing.mean())
 
                 self.visualize()
 
