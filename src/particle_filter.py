@@ -103,7 +103,7 @@ class ParticleFiler():
         self.timer = Utils.Timer(10)
         self.get_omap()
         self.precompute_sensor_model()
-        self.initialize_global()
+        # self.initialize_global()
 
         # these topics are for visualization
         self.pose_pub      = rospy.Publisher("/pf/viz/inferred_pose", PoseStamped, queue_size = 1)
@@ -344,7 +344,7 @@ class ParticleFiler():
         '''
         if isinstance(msg, PointStamped):
             self.initialize_global()
-        elif isinstance(msg, PoseWithCovarianceStamped):
+        elif isinstance(msg, Pose):
             self.initialize_particles_pose(msg.pose.pose)
 
     def initialize_particles_pose(self, pose):
