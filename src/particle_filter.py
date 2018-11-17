@@ -345,7 +345,7 @@ class ParticleFiler():
         if isinstance(msg, PointStamped):
             self.initialize_global()
         elif isinstance(msg, Pose):
-            self.initialize_particles_pose(msg.pose.pose)
+            self.initialize_particles_pose(msg)
 
     def initialize_particles_pose(self, pose):
         '''
